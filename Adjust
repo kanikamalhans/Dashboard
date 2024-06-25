@@ -1,0 +1,200 @@
+import React, { useState } from 'react';
+import { Bar, Doughnut } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
+
+const data = {
+  labels: Array.from({ length: 15 }, (_, i) => `Product ${i + 1}`),
+  datasets: [
+    {
+      data: Array.from({ length: 15 }, (_, i) => Math.floor(Math.random() * 30) + 1),
+      backgroundColor: Array.from({ length: 15 }, (_, i) =>
+        i % 2 === 0 ? 'rgba(255, 99, 132, 0.5)' : 'rgba(255, 159, 64, 0.5)'
+      ),
+    },
+  ],
+};
+
+const data2 = {
+  labels: [
+    'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA',
+    'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+    'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT',
+    'VA', 'WA', 'WV', 'WI', 'WY'
+  ],
+  datasets: [
+    {
+      label: 'A',
+      data: Array.from({ length: 50 }, (_, i) => 50 + i * 10),
+      backgroundColor: '#FFEB3B',
+    },
+    {
+      label: 'B',
+      data: Array.from({ length: 50 }, (_, i) => 40 + i * 10),
+      backgroundColor: '#FFC107',
+    },
+    {
+      label: 'C',
+      data: Array.from({ length: 50 }, (_, i) => 30 + i * 10),
+      backgroundColor: '#FF9800',
+    },
+    {
+      label: 'D',
+      data: Array.from({ length: 50 }, (_, i) => 20 + i * 10),
+      backgroundColor: '#FF5722',
+    },
+    {
+      label: 'E',
+      data: Array.from({ length: 50 }, (_, i) => 10 + i * 10),
+      backgroundColor: '#F44336',
+    },
+    {
+      label: 'F',
+      data: Array.from({ length: 50 }, (_, i) => 5 + i * 5),
+      backgroundColor: '#D32F2F',
+    },
+  ],
+};
+
+const genderData = {
+  labels: ['MALE', 'FEMALE', 'OTHER'],
+  datasets: [
+    {
+      data: [58, 35, 7],
+      backgroundColor: ['#FF0000', '#FFEB3B', '#FFECB3'],
+    },
+  ],
+};
+
+const options = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false,
+    },
+    title: {
+      display: true,
+      text: 'Product Sales Data',
+    },
+  },
+};
+
+const genderOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: 'right',
+    },
+    title: {
+      display: true,
+      text: 'Gender Representation',
+    },
+  },
+};
+
+const Popup = ({ data, onClose }) => {
+  return (
+    <div style={{ position: 'absolute', top: '20%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: 'white', padding: '20px', border: '1px solid black', zIndex: 100 }}>
+      <h1>Details for {data.label}</h1>
+      <p>Data Value: {data.value}</p>
+      <button onClick={onClose}>Close</button>
+    </div>
+  );
+};
+
+const Dashboard = () => {
+  const [year, setYear] = useState('2023');
+  const [popupInfo, setPopupInfo] = useState(null);
+
+  const handleBarClick = (event, elements, chart) => {
+    if (elements.length === 0) return; // No bar clicked
+    const firstElement = elements[0];
+    const label = chart.data.labels[firstElement.index];
+    const value = chart.data.datasets[firstElement.datasetIndex].data[firstElement.index];
+    setPopupInfo({ label, value });
+  };
+
+  const options2 = {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: {
+        stacked: true,
+      },
+      y: {
+        stacked: true,
+      },
+    },
+    plugins: {
+      legend: {
+        position: 'bottom',
+      },
+      title: {
+        display: true,
+        text: 'Customer Count by State',
+      },
+    },
+    onClick: handleBarClick,
+  };
+
+  const handleYearChange = (e) => {
+    setYear(e.target.value);
+  };
+
+  const closePopup = () => {
+    setPopupInfo(null);
+  };
+
+  return (
+    <div style={{ display: 'grid', gridTemplateRows: '60% 40%', height: '100vh', gap: '20px', padding: '20px', boxSizing: 'border-box' }}>
+      {popupInfo && <Popup data={popupInfo} onClose={closePopup} />}
+      
+      <div style={{ gridRow: '1', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', padding: '20px', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '100%', height: '100%' }}>
+          <div style={{ marginBottom: '10px' }}>
+            <label>
+              Year:
+              <select value={year} onChange={handleYearChange} style={{ marginLeft: '10px' }}>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+              </select>
+            </label>
+          </div>
+          <div style={{ width: '100%', height: '100%' }}> {/* Ensure chart uses full space */}
+            <Bar data={data2} options={options2} />
+          </div>
+        </div>
+      </div>
+      
+      <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+        <div style={{ flex: '70%', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', padding: '20px', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '100%', height: '100%' }}>
+            <div style={{ marginBottom: '10px' }}>
+              <label>
+                Year:
+                <select value={year} onChange={handleYearChange} style={{ marginLeft: '10px' }}>
+                  <option value="2023">2023</option>
+                  <option value="2022">2022</option>
+                  <option value="2021">2021</option>
+                </select>
+              </label>
+            </div>
+            <div style={{ width: '100%', height: '100%' }}> {/* Ensure chart uses full space */}
+              <Bar data={data} options={options} />
+            </div>
+          </div>
+        </div>
+        <div style={{ flex: '30%', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', padding: '20px', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Doughnut data={genderData} options={genderOptions} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
